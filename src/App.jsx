@@ -4,6 +4,7 @@ function App() {
   const [selectedColor, setSelectedColor] = useState(null)
   const [gridColors, setGridColors] = useState(Array(64).fill('bg-white'))
   const [isEraserSelected, setIsEraserSelected] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   const clearCanvas = () => {
     setGridColors(Array(64).fill('bg-white'))
@@ -86,6 +87,32 @@ function App() {
     }
   }
 
+  const handleMouseDown = (index) => {
+    setIsDragging(true);
+    applyColor(index);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseEnter = (index) => {
+    if (isDragging) {
+      applyColor(index);
+    }
+  };
+
+  const applyColor = (index) => {
+    const colors = ['bg-white', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-indigo-400', 'bg-purple-400', 'bg-pink-400'];
+    const newGridColors = [...gridColors];
+    if (isEraserSelected) {
+      newGridColors[index] = 'bg-white';
+    } else if (selectedColor !== null) {
+      newGridColors[index] = colors[selectedColor];
+    }
+    setGridColors(newGridColors);
+  };
+
   return (
     <>
     <div className="hero bg-base-200 min-h-screen">
@@ -109,21 +136,23 @@ function App() {
             <div 
               key={i} 
               className={`w-8 h-8 ${gridColors[i]} hover:border cursor-pointer ${isEraserSelected ? ' hover:bg-gray-400' : ''}`}
-              onClick={handleSquareClick}
+              onMouseDown={() => handleMouseDown(i)}
+              onMouseUp={handleMouseUp}
+              onMouseEnter={() => handleMouseEnter(i)}
             ></div>
           );
         })}
       </div>
       <div className="grid grid-cols-8 gap-0 w-64 h-8 mx-auto mt-4">
         {Array.from({ length: 8 }, (_, i) => {
-          const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-indigo-400', 'bg-purple-400', 'bg-pink-400'];
-          const isSelected = selectedColor === i;
+          const colors = ['bg-white', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-indigo-400', 'bg-purple-400', 'bg-pink-400'];
+          const isSelected = selectedColor === i + 1; // Adjust index to match colors array
           return (
             <div 
               key={i + 64} 
-              className={`w-8 h-8 ${colors[i]} cursor-pointer border-2 ${isSelected ? 'border-black' : 'border-transparent'} hover:border-gray-500`}
+              className={`w-8 h-8 ${colors[i + 1]} cursor-pointer border-2 ${isSelected ? 'border-black' : 'border-transparent'} hover:border-gray-500`}
               onClick={() => {
-                setSelectedColor(isSelected ? null : i);
+                setSelectedColor(isSelected ? null : i + 1); // Adjust index to match colors array
                 setIsEraserSelected(false);
               }}
             ></div>
